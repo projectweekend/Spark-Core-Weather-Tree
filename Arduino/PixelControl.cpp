@@ -1,12 +1,11 @@
-#include "RandomPixels.h"
+#include "PixelControl.h"
 
 
-RandomPixels::RandomPixels() {
+PixelControl::PixelControl() {
     previousMillis = 0;
 }
 
-
-void RandomPixels::Animate(Adafruit_NeoPixel &pixelStrip, uint32_t color, long interval) {
+void PixelControl::AnimateRandom(Adafruit_NeoPixel &pixelStrip, uint32_t color, long interval) {
     int randomPixel = random(0, pixelStrip.numPixels());
 
     unsigned long currentMillis = millis();

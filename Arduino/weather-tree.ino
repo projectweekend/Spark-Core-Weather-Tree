@@ -1,18 +1,18 @@
 #include "neopixel/neopixel.h"
-#include "RandomPixels.h"
+#include "PixelControl.h"
 
 
-Adafruit_NeoPixel neopixelRingLarge = Adafruit_NeoPixel(24, 6, WS2812);
-RandomPixels ringLarge = RandomPixels();
+Adafruit_NeoPixel neopixelRingLarge = Adafruit_NeoPixel(24, 4, WS2812);
+PixelControl ringLarge = PixelControl();
 
-Adafruit_NeoPixel neopixelRingMedium = Adafruit_NeoPixel(16, 7, WS2812);
-RandomPixels ringMedium = RandomPixels();
+Adafruit_NeoPixel neopixelRingMedium = Adafruit_NeoPixel(16, 5, WS2812);
+PixelControl ringMedium = PixelControl();
 
-Adafruit_NeoPixel neopixelRingSmall = Adafruit_NeoPixel(12, 8, WS2812);
-RandomPixels ringSmall = RandomPixels();
+Adafruit_NeoPixel neopixelRingSmall = Adafruit_NeoPixel(12, 6, WS2812);
+PixelControl ringSmall = PixelControl();
 
 // This is the pixel on the top...it will be controlled differently: TODO
-Adafruit_NeoPixel neopixelSingle = Adafruit_NeoPixel(1, 9, WS2812);
+Adafruit_NeoPixel neopixelSingle = Adafruit_NeoPixel(1, 7, WS2812);
 
 
 void setup() {
@@ -31,18 +31,21 @@ void setup() {
 
     randomSeed(analogRead(0));
 
+    Spark.function("brew", snow);
+
 }
 
 
 void loop() {
 
-    snow();
-
 }
 
 
-void snow() {
-    ringSmall.Animate(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
-    ringMedium.Animate(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
-    ringLarge.Animate(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
+int snow(String args) {
+
+    ringSmall.AnimateRandom(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
+    ringMedium.AnimateRandom(neopixelRingMedium, neopixelRingMedium.Color(127, 127, 127), 100);
+    ringLarge.AnimateRandom(neopixelRingSmall, neopixelRingSmall.Color(127, 127, 127), 100);
+
+    return 200;
 }
