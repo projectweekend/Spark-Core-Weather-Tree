@@ -15,8 +15,8 @@ PixelControl ringSmall = PixelControl();
 Adafruit_NeoPixel neopixelSingle = Adafruit_NeoPixel(1, 7, WS2812);
 
 
-void setup() {
-
+void setup()
+{
     neopixelRingLarge.begin();
     neopixelRingLarge.show();
 
@@ -31,8 +31,8 @@ void setup() {
 
     randomSeed(analogRead(0));
 
-    Spark.function("brew", snow);
-
+    Spark.function("snow", snow);
+    Spark.function("noPercipitation", noPercipitation);
 }
 
 
@@ -41,11 +41,21 @@ void loop() {
 }
 
 
-int snow(String args) {
-
-    ringSmall.AnimateRandom(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
+int snow(String args)
+{
+    ringSmall.AnimateRandom(neopixelRingSmall, neopixelRingLarge.Color(127, 127, 127), 100);
     ringMedium.AnimateRandom(neopixelRingMedium, neopixelRingMedium.Color(127, 127, 127), 100);
-    ringLarge.AnimateRandom(neopixelRingSmall, neopixelRingSmall.Color(127, 127, 127), 100);
+    ringLarge.AnimateRandom(neopixelRingLarge, neopixelRingSmall.Color(127, 127, 127), 100);
+
+    return 200;
+}
+
+
+int noPercipitation(String args)
+{
+    ringSmall.ColorWipe(neopixelRingSmall, neopixelRingLarge.Color(0, 255, 0), 100);
+    ringMedium.ColorWipe(neopixelRingMedium, neopixelRingMedium.Color(0, 255, 0), 100);
+    ringLarge.ColorWipe(neopixelRingLarge, neopixelRingSmall.Color(0, 255, 0), 100);
 
     return 200;
 }
