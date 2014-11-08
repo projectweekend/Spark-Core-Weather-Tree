@@ -36,9 +36,13 @@ void setup() {
 
 void loop() {
 
-    // Snow...make this into function that is callable from API: TODO
+    snow();
+
+}
+
+
+void snow() {
     ringSmall.Animate(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
     ringMedium.Animate(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
     ringLarge.Animate(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
-
 }
