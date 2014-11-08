@@ -2,17 +2,33 @@
 #include "RandomPixels.h"
 
 
-#define PIN 6
+Adafruit_NeoPixel neopixelRingLarge = Adafruit_NeoPixel(24, 6, WS2812);
+RandomPixels ringLarge = RandomPixels();
 
+Adafruit_NeoPixel neopixelRingMedium = Adafruit_NeoPixel(16, 7, WS2812);
+RandomPixels ringMedium = RandomPixels();
 
-Adafruit_NeoPixel snowStrip1 = Adafruit_NeoPixel(24, PIN, WS2812);
-RandomPixels snowRing1 = RandomPixels();
+Adafruit_NeoPixel neopixelRingSmall = Adafruit_NeoPixel(12, 8, WS2812);
+RandomPixels ringSmall = RandomPixels();
+
+// This is the pixel on the top...it will be controlled differently: TODO
+Adafruit_NeoPixel neopixelSingle = Adafruit_NeoPixel(1, 9, WS2812);
 
 
 void setup() {
 
-    snowStrip1.begin();
-    snowStrip1.show();
+    neopixelRingLarge.begin();
+    neopixelRingLarge.show();
+
+    neopixelRingMedium.begin();
+    neopixelRingMedium.show();
+
+    neopixelRingSmall.begin();
+    neopixelRingSmall.show();
+
+    neopixelSingle.begin();
+    neopixelSingle.show();
+
     randomSeed(analogRead(0));
 
 }
@@ -20,6 +36,9 @@ void setup() {
 
 void loop() {
 
-    snowRing1.Animate(snowStrip1, snowStrip1.Color(127, 127, 127), 100);
+    // Snow...make this into function that is callable from API: TODO
+    ringSmall.Animate(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
+    ringMedium.Animate(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
+    ringLarge.Animate(neopixelRingLarge, neopixelRingLarge.Color(127, 127, 127), 100);
 
 }
