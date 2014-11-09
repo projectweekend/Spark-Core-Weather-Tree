@@ -32,7 +32,7 @@ void setup()
     randomSeed(analogRead(0));
 
     Spark.function("snow", snow);
-    Spark.function("noPercipitation", noPercipitation);
+    Spark.function("none", noPercipitation);
 }
 
 
