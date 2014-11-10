@@ -31,13 +31,25 @@ void setup()
 
     randomSeed(analogRead(0));
 
+    Spark.function("rain", rain);
     Spark.function("snow", snow);
     Spark.function("none", noPercipitation);
 }
 
 
-void loop() {
+void loop()
+{
 
+}
+
+
+int rain(String args)
+{
+    ringSmall.AnimateRandom(neopixelRingSmall, neopixelRingLarge.Color(0, 0, 255), 100);
+    ringMedium.AnimateRandom(neopixelRingMedium, neopixelRingMedium.Color(0, 0, 255), 100);
+    ringLarge.AnimateRandom(neopixelRingLarge, neopixelRingSmall.Color(0, 0, 255), 100);
+
+    return 200;
 }
 
 
