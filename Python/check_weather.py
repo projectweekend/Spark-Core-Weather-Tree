@@ -1,10 +1,20 @@
 import os
 import sys
 
+import mandrill
 import requests
 import forecastio
 from pyecho import echo, FailingTooHard
 
+
+NOTIFICATION_EMAIL = os.getenv('NOTIFICATION_EMAIL')
+assert NOTIFICATION_EMAIL
+
+MANDRILL_KEY = os.getenv('MANDRILL_KEY')
+assert MANDRILL_KEY
+
+MANDRILL_FROM_EMAIL = os.getenv('MANDRILL_FROM_EMAIL')
+assert MANDRILL_FROM_EMAIL
 
 FORECAST_IO_KEY = os.getenv('FORECAST_IO_KEY')
 assert FORECAST_IO_KEY
@@ -22,6 +32,17 @@ SPARK_AUTH_TOKEN = os.getenv('SPARK_AUTH_TOKEN')
 assert SPARK_AUTH_TOKEN
 
 SPARK_URL_TEMPLATE = "https://api.spark.io/v1/devices/{0}/{1}"
+
+
+def send_error_email(message_subject, message_text):
+	client = mandrill.Mandrill(MANDRILL_KEY)
+	message = {
+		'from_email': MANDRILL_FROM_EMAIL,
+		'subject': message_subject,
+		'html': '<p>{0}</p>'.format(message_text),
+		'to': [{'email': NOTIFICATION_EMAIL}]
+	}
+	client.messages.send(message=message, async=True)
 
 
 @echo(5)
@@ -64,11 +85,17 @@ def main():
 		except KeyError:
 			response = report_no_percipitation()
 	except FailingTooHard:
-		# TODO: send email, blink LED...something to alert me that request is failing
+		email_subject = 'Weather Tree: Spark Core Communication Error'
+		email_body = 'Unable to connect to Spark Core with ID {0}'.format(SPARK_DEVICE_ID)
+		send_error_email(email_subject, email_body)
+		# TODO: maybe an blink LED too?
 		sys.exit(1)
 
 	if response.status_code != 200:
-		# TODO: send email, blink LED...something to alert me that request is bad
+		email_subject = 'Weather Tree: Spark Core Request Error'
+		email_body = 'Bad request to Spark Core with ID {0}'.format(SPARK_DEVICE_ID)
+		send_error_email(email_subject, email_body)
+		# TODO: maybe an blink LED too?
 		sys.exit(1)
 
 	sys.exit(0)
