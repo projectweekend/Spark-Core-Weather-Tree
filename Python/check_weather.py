@@ -52,6 +52,13 @@ def send_to_spark(function_name):
 	return requests.post(url, headers=headers)
 
 
+@echo(5)
+def forecast_currently():
+	forecast = forecastio.load_forecast(FORECAST_IO_KEY, FORECAST_IO_LATITUDE,
+				FORECAST_IO_LONGITUDE)
+	return forecast.currently()
+
+
 def report_snow():
 	return send_to_spark('snow')
 
@@ -69,9 +76,14 @@ def report_no_percipitation():
 
 
 def main():
-	forecast = forecastio.load_forecast(FORECAST_IO_KEY, FORECAST_IO_LATITUDE,
-				FORECAST_IO_LONGITUDE)
-	currently = forecast.currently()
+	try:
+		currently = forecast_currently()
+	except FailingTooHard:
+		email_subject = 'Weather Tree: Forecast.io Communication Error'
+		email_body = 'Unable to reach Forecast.io API'
+		send_error_email(email_subject, email_body)
+		# TODO: maybe an blink LED too?
+		return 1
 
 	percipitation = {
 		'rain': report_rain,
@@ -89,17 +101,17 @@ def main():
 		email_body = 'Unable to connect to Spark Core with ID {0}'.format(SPARK_DEVICE_ID)
 		send_error_email(email_subject, email_body)
 		# TODO: maybe an blink LED too?
-		sys.exit(1)
+		return 2
 
 	if response.status_code != 200:
 		email_subject = 'Weather Tree: Spark Core Request Error'
 		email_body = 'Bad request to Spark Core with ID {0}'.format(SPARK_DEVICE_ID)
 		send_error_email(email_subject, email_body)
 		# TODO: maybe an blink LED too?
-		sys.exit(1)
+		return 3
 
-	sys.exit(0)
+	return 0
 
 
 if __name__ == '__main__':
-	main()
+	sys.exit(main())
