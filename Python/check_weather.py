@@ -3,8 +3,9 @@ import sys
 
 import mandrill
 import requests
-import forecastio
 from pyecho import echo, FailingTooHard
+
+from forecast import ForecastClient
 
 
 NOTIFICATION_EMAIL = os.getenv('NOTIFICATION_EMAIL')
@@ -16,8 +17,8 @@ assert MANDRILL_KEY
 MANDRILL_FROM_EMAIL = os.getenv('MANDRILL_FROM_EMAIL')
 assert MANDRILL_FROM_EMAIL
 
-FORECAST_IO_KEY = os.getenv('FORECAST_IO_KEY')
-assert FORECAST_IO_KEY
+RABBIT_URL = os.getenv('RABBIT_URL')
+assert RABBIT_URL
 
 FORECAST_IO_LATITUDE = os.getenv('FORECAST_IO_LATITUDE')
 assert FORECAST_IO_LATITUDE
@@ -31,7 +32,7 @@ assert SPARK_DEVICE_ID
 SPARK_AUTH_TOKEN = os.getenv('SPARK_AUTH_TOKEN')
 assert SPARK_AUTH_TOKEN
 
-SPARK_URL_TEMPLATE = "https://api.spark.io/v1/devices/{0}/{1}"
+SPARK_URL_TEMPLATE = 'https://api.spark.io/v1/devices/{0}/{1}'
 
 
 def send_error_email(message_subject, message_text):
@@ -45,18 +46,22 @@ def send_error_email(message_subject, message_text):
 	client.messages.send(message=message, async=True)
 
 
-@echo(5)
+@echo(3)
 def send_to_spark(function_name):
 	url = SPARK_URL_TEMPLATE.format(SPARK_DEVICE_ID, function_name)
 	headers = {'Authorization': "Bearer {0}".format(SPARK_AUTH_TOKEN)}
 	return requests.post(url, headers=headers)
 
 
-@echo(5)
+@echo(3)
 def forecast_currently():
-	forecast = forecastio.load_forecast(FORECAST_IO_KEY, FORECAST_IO_LATITUDE,
-				FORECAST_IO_LONGITUDE)
-	return forecast.currently()
+	forecast_client = ForecastClient(rabbit_url=RABBIT_URL)
+	data = forecast_client.get_forecast(
+			latitude=float(FORECAST_IO_LATITUDE),
+			longitude=float(FORECAST_IO_LONGITUDE),
+			options={'exclude': ['minutely', 'hourly', 'daily', 'alerts', 'flags']})
+	forecast_client.close_connection()
+	return data['currently']
 
 
 def report_snow():
@@ -79,8 +84,8 @@ def main():
 	try:
 		currently = forecast_currently()
 	except FailingTooHard:
-		email_subject = 'Weather Tree: Forecast.io Communication Error'
-		email_body = 'Unable to reach Forecast.io API'
+		email_subject = 'Weather Tree: Forecast.io RPC Service Error'
+		email_body = 'Unable to reach Forecast.io RPC service'
 		send_error_email(email_subject, email_body)
 		# TODO: maybe an blink LED too?
 		return 1
@@ -93,7 +98,7 @@ def main():
 
 	try:
 		try:
-			response = percipitation[currently.d['icon']]()
+			response = percipitation[currently['icon']]()
 		except KeyError:
 			response = report_no_percipitation()
 	except FailingTooHard:
