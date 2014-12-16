@@ -14,7 +14,7 @@ PixelControl ringSmall = PixelControl();
 // This is the pixel on the top...it will be controlled differently: TODO
 Adafruit_NeoPixel neopixelSingle = Adafruit_NeoPixel(1, 7, WS2812);
 
-int currentPercipitation = 0;
+int currentPercipitation = -1;
 
 
 void setup()
@@ -31,12 +31,7 @@ void setup()
     neopixelSingle.begin();
     neopixelSingle.show();
 
-    // Default color
-    // ringSmall.ColorWipe(neopixelRingSmall, neopixelRingLarge.Color(0, 255, 0), 100);
-    // ringMedium.ColorWipe(neopixelRingMedium, neopixelRingMedium.Color(0, 255, 0), 100);
-    // ringLarge.ColorWipe(neopixelRingLarge, neopixelRingSmall.Color(0, 255, 0), 100);
-
-    int result = noPercipitation();
+    noPercipitation("");
 
     randomSeed(analogRead(0));
 
@@ -67,27 +62,33 @@ void loop()
 
 int noPercipitation(String args)
 {
-    clear();
-    ringSmall.ColorWipe(neopixelRingSmall, neopixelRingLarge.Color(0, 255, 0), 100);
-    ringMedium.ColorWipe(neopixelRingMedium, neopixelRingMedium.Color(0, 255, 0), 100);
-    ringLarge.ColorWipe(neopixelRingLarge, neopixelRingSmall.Color(0, 255, 0), 100);
-    currentPercipitation = 0;
+    if(currentPercipitation != 0){
+        clear();
+        ringSmall.ColorWipe(neopixelRingSmall, neopixelRingLarge.Color(0, 255, 0), 100);
+        ringMedium.ColorWipe(neopixelRingMedium, neopixelRingMedium.Color(0, 255, 0), 100);
+        ringLarge.ColorWipe(neopixelRingLarge, neopixelRingSmall.Color(0, 255, 0), 100);
+        currentPercipitation = 0;
+    }
     return 200;
 }
 
 
 int rain(String args)
 {
-    clear();
-    currentPercipitation = 1;
+    if(currentPercipitation != 1){
+        clear();
+        currentPercipitation = 1;
+    }
     return 200;
 }
 
 
 int snow(String args)
 {
-    clear();
-    currentPercipitation = 2;
+    if(currentPercipitation != 2){
+        clear();
+        currentPercipitation = 2;
+    }
     return 200;
 }
 
